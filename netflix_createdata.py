@@ -156,38 +156,8 @@ def main(in_directory, out_directory):
     convert_special_case = functions.udf(to_special_case, returnType=types.StringType())
     data_expanded = data_expanded.withColumn('genre', convert_special_case(data_expanded['genre']))
 
-    #Find the top 10 common genres
-    genre_grouped = data_expanded.groupBy("genre")
-    genre_count = genre_grouped.count().sort("count", ascending = False) #sort in descending order
-
-    #Get top 10 genre name
-    top10 = genre_count.limit(10)
-    top10_name = [row['genre'] for row in top10.collect()]
-    
-    #Filter data to get movie/shows in the top 10 genre
-    data_expanded = data_expanded.filter(data_expanded['genre'].isin(top10_name))
-
-    #Group by seasons
-    seasonal_data = data_expanded.groupBy("genre", "season").agg(
-        functions.avg("averageRating").alias("avgRating"), 
-        functions.avg("numVotes").alias("avgNumVotes"),
-        functions.avg("popularityScore").alias("avgPopularityScore"))
-    # seasonal_data.show()
-    # print(seasonal_data.count())
-
-    #Group by month added
-    monthly_data = data_expanded.groupBy("genre", "month_added").agg(
-        functions.avg("averageRating").alias("avgRating"), 
-        functions.avg("numVotes").alias("avgNumVotes"),
-        functions.avg("popularityScore").alias("avgPopularityScore"))
-    # monthly_data.show()
-    # print(monthly_data.count())
-
     #Write the result to csv file to do analysis
-    #Use coalesce here to combine all data in one file to easier to read in Pandas
-    #Also the dataset is small after cleaning so we can use coalesce
-    seasonal_data.coalesce(1).write.csv(out_directory + "_seasonal", header = True, mode = 'overwrite')
-    monthly_data.coalesce(1).write.csv(out_directory + "_monthly", header = True, mode = 'overwrite')
+    data_expanded.write.csv(out_directory + "_cleaned", header = True, mode = 'overwrite')
 
 if __name__=='__main__':
     in_directory = sys.argv[1]
