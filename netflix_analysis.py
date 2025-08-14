@@ -49,23 +49,6 @@ grouped_data = data.groupby(['tconst', 'type', 'titleType', 'title', 'originalTi
                              'ageCertification', 'isAdult', 'country',
                              'popularityScore', 'month_added', 'season']).aggregate({'genre': list}).reset_index()
 
-# %%
-#Question: Does month added affect the rating for each movie/show?
-#Find the correlation coefficient
-fit = stats.linregress(grouped_data['month_added'], grouped_data['averageRating'])
-corr = fit.rvalue
-print("The correlation coefficient between month added and rating is: ", corr)
-
-#Prediction for the next rating with the given month
-grouped_data['rating_pred'] = grouped_data['month_added'] * fit.slope + fit.intercept
-
-#Plot for better visualization
-plt.plot(grouped_data['month_added'], grouped_data['averageRating'], 'o')
-plt.plot(grouped_data['month_added'], grouped_data['rating_pred'], 'r-')
-plt.xlabel('Month Added')
-plt.ylabel('Average Rating')
-plt.title('Relationship between month added and average rating on Netflix')
-plt.savefig('month_rating_corr.svg')
 
 # %%
 #Question: Has movie and show on Netflix popularity increased over time?
